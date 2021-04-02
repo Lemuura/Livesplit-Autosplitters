@@ -79,7 +79,7 @@ split
         var x = -139 - current.x;
         var z = 44 - current.z;
         var distanceSquared = x * x + z * z;
-        if (distanceSquared < 4000 && old.isCutscene <= 65537 && current.isCutscene == 16842753 && current.Map == "Layouts/FrostbackMountains/Finale/Finale")
+        if (old.isCutscene <= 65537 && current.isCutscene == 16842753 && distanceSquared < 2000 && current.Map == "Layouts/FrostbackMountains/Finale/Finale")
         {
             return true;
         }
