@@ -18,12 +18,14 @@ state("DragonAgeInquisition", "1.11")
     float x : 0x02906220, 0x10, 0x0, 0x90, 0x20, 0x20, 0x0;
     float y : 0x02906220, 0x10, 0x0, 0x90, 0x20, 0x20, 0x4;
     float z : 0x02906220, 0x10, 0x0, 0x90, 0x20, 0x20, 0x8;
+    string75 popup : 0x02960010, 0x50, 0xC8, 0x0, 0x48;
 }
 
 startup
 {
     // Any% splits
     settings.Add("any%", false, "Any%");
+    settings.Add("party", false, "Party members", "any%");
     settings.Add("demon", false, "Leliana/Roderick cutscene", "any%");
     settings.Add("haven", true, "Haven", "any%");
     settings.Add("crestwood", true, "Crestwood", "any%");
@@ -41,14 +43,45 @@ startup
 
     // All Dragons splits
     settings.Add("alldragons", false, "All Dragons (Currently not used)");
+    settings.Add("prologueAD", true, "Prologue", "alldragons");
+    settings.Add("hinterlands", true, "Hinterlands", "alldragons");
+    settings.Add("crestwoodAD", true, "Crestwood", "alldragons");
+    settings.Add("trespasserAD", true, "Trespasser", "alldragons");
+    settings.Add("skyholdAD", true, "Skyhold", "alldragons");
+    settings.Add("varric", true, "Varric", "alldragons");
+    settings.Add("frostback", true, "Ferelden Frostback", "alldragons");
+    settings.Add("hunter", true, "Northern Hunter", "alldragons");
+    settings.Add("fredsQuests", true, "Fred's Quests", "alldragons");
+    settings.Add("abyssal", true, "Abyssal High Dragon", "alldragons");
+    settings.Add("stormrider", true, "Gamordan Stormrider", "alldragons");
+    settings.Add("mistral", true, "Greater Mistral", "alldragons");
+    settings.Add("howler", true, "Sandy Howler", "alldragons");
+    settings.Add("vinsomer", true, "Vinsomer", "alldragons");
+    settings.Add("ravager", true, "Highland Ravager", "alldragons");
+    settings.Add("kaltenzahn", true, "Kaltenzahn", "alldragons");
+    settings.Add("hivernal", true, "Hivernal High Dragon", "alldragons");
+
 
     // Trespasser splits
     settings.Add("trespasser", false, "Trespasser");
+    settings.Add("partyT", false, "Party members", "trespasser");
+    settings.Add("levelUp", false, "Level up (only works on current patch)", "trespasser");
+    settings.Add("winterPalace", true, "Winter Palace", "trespasser");
+    settings.Add("gold", true, "Gold", "trespasser"); 
+    settings.Add("gear", true, "Gear", "trespasser");
+    settings.Add("intel", true, "Grab Intel", "trespasser");
+    settings.Add("deepRoads", true, "Deep Roads", "trespasser");
+    settings.Add("shatteredLibrary", true, "Shattered Library", "trespasser");
+    settings.Add("darvaarad", true, "Darvaarad", "trespasser");
 }
 
 init
 {
     vars.splitOnExit = false;
+    vars.trespasser = 0;
+    vars.goldHasSplit = false;
+    vars.gearHasSplit = false;
+    vars.intelHasSplit = false;
     if (modules.First().ModuleMemorySize == 116293632){
         version = "1.01";
     } else if (modules.First().ModuleMemorySize == 103342080){
@@ -80,6 +113,16 @@ split
         var z = 44 - current.z;
         var distanceSquared = x * x + z * z;
         if (old.isCutscene <= 65537 && current.isCutscene == 16842753 && distanceSquared < 2000 && current.Map == "Layouts/FrostbackMountains/Finale/Finale")
+        {
+            return true;
+        }
+    }
+    if (settings["party"] || settings["partyT"]) // partyT is a trespasser option
+    {
+        var x = -67 - current.x;
+        var z = -117 - current.z;
+        var distanceSquared = x * x + z * z;
+        if (distanceSquared < 4000 && old.isCutscene <= 65537 && current.isCutscene == 16842753 && current.Map == "Layouts/FrostbackMountains/FrostbackMountains/FrostbackMountains")
         {
             return true;
         }
@@ -170,6 +213,55 @@ split
             return true;
         }
     }
+    if (settings["levelUp"] && old.popup != "Level Up" && current.popup == "Level Up" && current.Map == "Layouts/FrostbackMountains/FrostbackMountains/FrostbackMountains")
+    {
+        return true;
+        /*var x = -328 - current.x;
+        var z = -160 - current.z;*/
+    }
+    if (settings["winterPalace"] && old.Map == "Layouts/FrostbackMountains/FrostbackMountains/FrostbackMountains" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+    {
+        return true;
+    }
+    if (settings["gold"] && vars.trespasser == 2 && !vars.goldHasSplit)
+    {
+        var x = 81 - current.x;
+        var z = -128 - current.z;
+        var distanceSquared = x * x + z * z;
+        if (distanceSquared < 4000 && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+        {
+            vars.goldHasSplit = true;
+            return true;
+        }
+    }
+    if (settings["gear"] && vars.trespasser == 3 && !vars.gearHasSplit)
+    {
+        var x = -372 - current.x;
+        var z = -1054 - current.z;
+        var distanceSquared = x * x + z * z;
+        if (distanceSquared < 4000 && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+        {
+            vars.gearHasSplit = true;
+            return true;
+        }
+    }
+    if (settings["intel"] && vars.trespasser == 4 && !vars.intelHasSplit && old.Map == "DLC_Blue/Layouts/DLCBlue_Elven_Dungeon/DLCBlue_Elven_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+    {
+        vars.intelHasSplit = true;
+        return true;
+    }
+    if (settings["deepRoads"] && old.Map == "DLC_Blue/Layouts/DLCBlue_Dwarven_Dungeon/DLCBlue_Dwarven_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+    {
+        return true;
+    }
+    if (settings["shatteredLibrary"] && old.Map == "DLC_Blue/Layouts/DLCBlue_Fade_Dungeon/DLCBlue_Fade_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+    {
+        return true;
+    }
+    if (settings["darvaarad"] && old.Map == "DLC_Blue/Layouts/DLCBlue_Qunari_Dungeon/DLCBlue_Qunari_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_Solas_Dungeon/DLCBlue_Solas_Dungeon")
+    {
+        return true;
+    }
     /*
     var x =  - current.x;
     var z =  - current.z;
@@ -186,12 +278,51 @@ update
     {
         vars.splitOnExit = true;
     }
+    if (settings["trespasser"])
+    {
+        if (vars.trespasser == 0 && old.Map == "DLC_Blue/Layouts/DLCBlue_Elven_Dungeon/DLCBlue_Elven_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+        {
+            vars.trespasser++;
+        }
+        if (vars.trespasser == 1)
+        {
+            var x = 81 - current.x;
+            var z = -128 - current.z;
+            var distanceSquared = x * x + z * z;
+            if (distanceSquared < 4000 && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+            {
+                vars.trespasser++;
+            }
+        }
+        if (vars.trespasser == 2)
+        {
+            var x = -372 - current.x;
+            var z = -1054 - current.z;
+            var distanceSquared = x * x + z * z;
+            if (distanceSquared < 4000 && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+            {
+                vars.trespasser++;
+            }
+        }
+        if (vars.trespasser == 3 && old.Map == "DLC_Blue/Layouts/DLCBlue_Elven_Dungeon/DLCBlue_Elven_Dungeon" && current.Map == "DLC_Blue/Layouts/DLCBlue_WinterPalace/DLCBlue_WinterPalace")
+        {
+            vars.trespasser++;
+        }
+    }
+    print(vars.trespasser.ToString());
 }
 
 start
 {
     if (current.start == 10 && old.start == 10000)
     {
+        if (settings["trespasser"])
+        {
+            vars.trespasser = 0;
+            vars.goldHasSplit = false;
+            vars.gearHasSplit = false;
+            vars.intelHasSplit = false;
+        }
         return true;
     }
     return false;
