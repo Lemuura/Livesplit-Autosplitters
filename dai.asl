@@ -23,6 +23,11 @@ state("DragonAgeInquisition", "1.11")
 
 startup
 {
+    vars.trespasser = 0;
+    vars.goldHasSplit = false;
+    vars.gearHasSplit = false;
+    vars.intelHasSplit = false;
+
     // Any% splits
     settings.Add("any%", false, "Any%");
     settings.Add("party", false, "Party members", "any%");
@@ -78,10 +83,6 @@ startup
 init
 {
     vars.splitOnExit = false;
-    vars.trespasser = 0;
-    vars.goldHasSplit = false;
-    vars.gearHasSplit = false;
-    vars.intelHasSplit = false;
     if (modules.First().ModuleMemorySize == 116293632){
         version = "1.01";
     } else if (modules.First().ModuleMemorySize == 103342080){
