@@ -26,20 +26,24 @@ startup
 	settings.Add("0", true, "Place seed in Dandelion Core (end of run)");
 
 	settings.Add("orchard", false, "Night Orchard");
+	settings.Add("20", false, "Tutorial", "orchard");
 	settings.Add("1", false, "Lighthouse Charged", "orchard");
 
 	settings.Add("plaza", false, "Plaza");
 	settings.Add("2", false, "Reach Plaza", "plaza");
+	settings.Add("21", false, "Return Sparks", "plaza");
 	settings.Add("3", false, "Sparkcaster Activated", "plaza");
 
 	settings.Add("rig", false, "Rig Field");
 	settings.Add("4", false, "Rescued Klout", "rig");
 	settings.Add("5", false, "Emergency Switch Activated", "rig");
+	settings.Add("22", false, "Back to Plaza", "rig");
 	settings.Add("6", false, "Returned to Orchard", "rig");
 
 	settings.Add("sleepy", false, "Sleepy Triplets");
 	settings.Add("7", false, "Serpent Reveal", "sleepy");
 	settings.Add("8", false, "Talk to Edward", "sleepy");
+	settings.Add("23", false, "Spark Tank Fuse", "sleepy");
 	settings.Add("9", false, "Activated Spark Tank", "sleepy");
 	settings.Add("10", false, "Returned to Orchard", "sleepy");
 
@@ -58,6 +62,7 @@ startup
 	settings.Add("18", false, "Inside the Carcass", "flowering");
 	settings.Add("19", false, "Boss Fight", "flowering");
 
+	vars.completedSplits = new List<string>{};
 	vars.splitList = new List<string>
 	{
 		"CutScn_Dandelion_DandelionBreaks_01_PP",
@@ -80,7 +85,11 @@ startup
 		"CutScn_NightOrchard_QuarrelWithGrandma_01_PP",			// Return to the Orchard
 		"FLOWERING_InsideTheCarcass", 							// Inside the Carcass
 		"DANDELION_TheCore",									// Final boss
-	};
+		"CutScn_NightOrchard_TheWave_01_PP",
+		"PLAZA_ReturnSparksContinued",
+		"PLAZA_BackAtPlaza",
+		"SLEEPY_EdwardSparkTankFuse",
+	};	
 }
 
 split
@@ -93,16 +102,24 @@ split
 	if (old.cutscene != current.cutscene)
 		split = current.cutscene;
 
-	if (split == null)
+	if (split == null || vars.completedSplits.Contains(split))
 		return;
 	
 	if (vars.splitList.Contains(split))
+	{
+		vars.completedSplits.Add(split);
 		return settings[vars.splitList.IndexOf(split).ToString()];
+	}	
 }
 
 start
 {
 	return current.scene == 2;
+}
+
+onStart
+{
+	vars.completedSplits.Clear();
 }
 
 isLoading
