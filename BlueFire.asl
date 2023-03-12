@@ -1,8 +1,4 @@
-state("PROA34-Win64-Shipping")
-{
-	float TotalCentiseconds : 0x42C4EA0, 0x30, 0xE8, 0x258, 0x10B8, 0x260;
-	//the timer, starts at milliseconds, stored as 4byte and is slightly off displayed timer
-}
+state("PROA34-Win64-Shipping"){}
 
 startup
 {
@@ -58,7 +54,7 @@ startup
 	settings.Add("BP_BeiraVesselBase_TempleGardens", false, "TG Soul Fragments End", "temple");
 
 	settings.Add("firefall", false, "Firefall River");
-	settings.Add("CS: DoorLever_A01_City_6", false, "FFR Soul Fragments Start", "firefall");
+	settings.Add("CS: Door_A02_WaterWays_03_2", false, "FFR Soul Fragments Start", "firefall");
 	settings.Add("BP_BeiraVesselBase_LakeMolva", false, "FFR Soul Fragments End", "firefall");
 
 	settings.Add("steamHouse", false, "Steam House");
@@ -85,6 +81,14 @@ startup
 	settings.Add("debug", false, "[DEBUG] Show tracked values on overlay");
 
 	vars.splitOnNextCutscene = false; 
+
+	vars.cutsceneSplits = new List<string>()
+	{
+		"VonCinematicVessel",
+		//"DoorLever_A01_City_6",
+		"Door_A02_WaterWays_03_2",
+		"DoorLever3"
+	};
 }
 
 init
@@ -108,7 +112,7 @@ init
 				vars.Data = new MemoryWatcherList
 				{
 					new MemoryWatcher<float>(new DeepPointer(gWorld, 0x30, 0xE8, 0x258, 0x10B8, 0x260)) { Name = "TotalCentiseconds" },
-					new StringWatcher(new DeepPointer(gWorld, 0x428, 0x0), 255) { Name = "GWorldName" },
+					new StringWatcher(new DeepPointer(gWorld, 0x428, 0x28), 255) { Name = "WorldPath" },
 					new MemoryWatcher<byte>(new DeepPointer(gWorld, 0x188, 0x351)) { Name = "LastCheckpoint" },
 					new MemoryWatcher<byte>(new DeepPointer(gWorld, 0x30, 0xE8, 0x288, 0x700)) { Name = "StreamingChunk" },
 					new MemoryWatcher<IntPtr>(new DeepPointer(gWorld, 0x188, 0x300 + 0x8)) { Name = "EventsArray"},
@@ -178,8 +182,10 @@ isLoading
 
 split
 {
+	if (vars.Data["WorldPath"].Current == "Menu/MainMenu")
+		return false;
 	
- 	if (vars.splitOnNextCutscene && vars.Data["Cutscene"].Changed)
+ 	if (vars.splitOnNextCutscene && vars.Data["Cutscene"].Changed && vars.Data["Cutscene"].Current)
 	{
 		vars.splitOnNextCutscene = false;
 		return settings["CS: " + current.Event];
@@ -188,7 +194,7 @@ split
 	// Split when event is updated
 	if (vars.Data["EventsSize"].Changed)
 	{
-		if (current.Event == "VonCinematicVessel" || current.Event == "DoorLever_A01_City_6" || current.Event == "DoorLever3")
+		if (vars.cutsceneSplits.Contains(current.Event))
 		{
 			vars.splitOnNextCutscene = true;
 			return false;
@@ -202,7 +208,7 @@ split
 
 	// Split when fireshrine is updated
 	if (vars.Data["LastCheckpoint"].Changed)
-	return settings["Shrine: " + vars.Data["LastCheckpoint"].Old + " -> " + vars.Data["LastCheckpoint"].Current]; 
+		return settings["Shrine: " + vars.Data["LastCheckpoint"].Old + " -> " + vars.Data["LastCheckpoint"].Current]; 
 
 	// Split when streaming chunk changes (area transitions)
 	if (vars.Data["StreamingChunk"].Changed)
