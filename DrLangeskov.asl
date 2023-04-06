@@ -2,12 +2,8 @@ state("DrLangeskov") {}
 
 startup
 {
-	vars.Log = (Action<object>)((output) => print("[DrLangeskov] " + output));
-
-	var bytes = File.ReadAllBytes(@"Components\LiveSplit.ASLHelper.bin");
-    var type = Assembly.Load(bytes).GetType("ASLHelper.Unity");
-    vars.Helper = Activator.CreateInstance(type, timer, this);
-    vars.Helper.GameName = "Dr. Langeskov";
+	Assembly.Load(File.ReadAllBytes("Components/asl-help")).CreateInstance("Unity");
+	vars.Helper.GameName = "Dr. Langeskov";
 
 	vars.Sw = new Stopwatch();
 	vars.Lines = new List<string>
@@ -19,7 +15,7 @@ startup
 		"Ugh, I hate this room.",
 		"Ehm, just down the steps. ",
 		"Woah, oh my god, are you okay?",
-	};	
+	};
 
 	settings.Add("0", false, "Enter Publicity and Liaisons Front Desk");
 	settings.Add("1", false, "Enter Backstage");
@@ -32,29 +28,18 @@ startup
 
 init
 {
-	vars.Helper.TryOnLoad = (Func<dynamic, bool>)(mono =>
-    {
-        var UIMenu = mono.GetClass("UIMenu");
-        vars.Helper["LevelID"] = UIMenu.Make<int>("_instance", "LevelID");
+	vars.Helper.TryLoad = (Func<dynamic, bool>)(mono =>
+	{
+		vars.Helper["LevelID"] = mono.Make<int>("UIMenu", "_instance", "LevelID");
+		vars.Helper["CurrentItem"] = mono.MakeString("DialogueUI", "_instance", "_currentItem", "Subtitle");
 
-		var DialogueUI = mono.GetClass("DialogueUI");
-		vars.Helper["CurrentItem"] = DialogueUI.MakeString("_instance", "_currentItem" ,0xC);
-
-        return true;
-    });
-
-    vars.Helper.Load();
-}
-
-update
-{
-	if (!vars.Helper.Loaded || !vars.Helper.Update())
-        return false;
+		return true;
+	});
 }
 
 split
 {
- 	if ( vars.Helper["CurrentItem"].Current == "Thank you so much!" )
+ 	if (old.CurrentItem != current.CurrentItem && current.CurrentItem == "Thank you so much!")
 	{
 		vars.Sw.Start();
 	}
@@ -65,31 +50,19 @@ split
 		return true;
 	}
 
-	if (vars.Helper["CurrentItem"].Changed)
+	if (current.CurrentItem)
 	{
-		var index = vars.Lines.IndexOf(vars.Helper["CurrentItem"].Current);
-		if (index == -1)
-			return false;
-		return settings[index.ToString()];
+		var index = vars.Lines.IndexOf(current.CurrentItem);
+		return index != -1 && settings[index.ToString()];
 	}
 }
 
 start
 {
-	return vars.Helper["LevelID"].Changed && vars.Helper["LevelID"].Current == 0;
+	return old.LevelID != current.LevelID && current.LevelID == 0;
 }
 
 onReset
 {
 	vars.Sw.Reset();
-}
-
-exit
-{
-	vars.Helper.Dispose();
-}
-
-shutdown
-{
-	vars.Helper.Dispose();
 }
