@@ -50,7 +50,7 @@ split
 		return true;
 	}
 
-	if (current.CurrentItem)
+	if (old.CurrentItem != current.CurrentItem)
 	{
 		var index = vars.Lines.IndexOf(current.CurrentItem);
 		return index != -1 && settings[index.ToString()];
