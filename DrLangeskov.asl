@@ -31,7 +31,7 @@ init
 	vars.Helper.TryLoad = (Func<dynamic, bool>)(mono =>
 	{
 		vars.Helper["LevelID"] = mono.Make<int>("UIMenu", "_instance", "LevelID");
-		vars.Helper["CurrentItem"] = mono.MakeString("DialogueUI", "_instance", "_currentItem");
+		vars.Helper["CurrentItem"] = mono.MakeString("DialogueUI", "_instance", "_currentItem", "Subtitle");
 
 		return true;
 	});
