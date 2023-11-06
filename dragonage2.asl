@@ -4,6 +4,7 @@ state("DragonAge2", "1.00")
     int start : 0x939ED8;
     string255 map : 0x0094B950, 0x74, 0xB4, 0xB4, 0x5C, 0x0, 0xA8, 0x0;
     int meredith : 0x9657A4;
+    //
 }
 
 state("DragonAge2", "1.04")
@@ -28,6 +29,9 @@ init
         // unknown version, assuming 1.04
         version = "1.04";
     }
+
+    vars.accountDP = new DeepPointer(0x9560F8, 0x0);
+    current.account = "";
 }
 
 startup
@@ -53,6 +57,7 @@ startup
     settings.Add("act1", false, "Act 1 splits");
     settings.Add("act2", false, "Act 2 splits");
     settings.Add("act3", false, "Act 3 splits");
+    settings.Add("misc", false, "Misc");
 
     settings.CurrentDefaultParent = "pro";
     settings.Add("pro000ar_blightlands_fake -> pro000ar_blightlands_real", false,    "Completed tutorial");
@@ -77,6 +82,9 @@ startup
     settings.Add("qcr221ar_keep -> dae320ar_hightown", false,                        "When Act 3 starts");
     settings.Add("dae370ar_gallows -> dae321ar_player_home_nt", false,               "Enter Estate from Gallows");
     settings.Add("mcr371ar_gallows_prison_nt -> mcr371ar_gallows_templar_nt", false, "After Orsino dies");
+
+    settings.CurrentDefaultParent = "misc";
+    settings.Add("censor", false, "Censor email address shown in main menu");
 }
 
 exit
@@ -107,6 +115,29 @@ split
         return false;
 
     return settings[vars.oldMap + " -> " + vars.currentMap];
+}
+
+update
+{
+    
+    if (!settings["censor"])
+        return;
+
+    IntPtr strPtr;
+    vars.accountDP.DerefOffsets(game, out strPtr);
+
+    string str = game.ReadString(strPtr, 100);
+    if (str == null)
+        return;
+
+    string censorMsg = "CENSORED";
+    if (str != censorMsg)
+    {
+        byte [] strInBytes = new byte[censorMsg.Length * 2 + 1];
+        Encoding.Unicode.GetBytes(censorMsg).CopyTo(strInBytes, 0);
+        game.WriteBytes(strPtr, strInBytes);
+    }
+    
 }
 
 
