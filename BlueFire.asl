@@ -5,6 +5,21 @@ startup
 	vars.Log = (Action<object>)((output) => print("[Blue Fire] " + output));
 	vars.MenuTime = 0f;
 
+	if (timer.CurrentTimingMethod == TimingMethod.RealTime)
+	{
+		var timingMessage = MessageBox.Show(
+			"This game uses IGT as the main timing method.\n"
+			+ "LiveSplit is currently set to show Real Time (RTA).\n"
+			+ "Would you like to set the timing method to IGT?",
+			"Blue Fire | LiveSplit",
+			MessageBoxButtons.YesNo, MessageBoxIcon.Question
+		);
+		if (timingMessage == DialogResult.Yes)
+		{
+			timer.CurrentTimingMethod = TimingMethod.GameTime;
+		}
+	}
+
 	vars.SetTextComponent = (Action<string, string>)((id, text) =>
 	{
 		var textSettings = timer.Layout.Components.Where(x => x.GetType().Name == "TextComponent").Select(x => x.GetType().GetProperty("Settings").GetValue(x, null));
@@ -21,64 +36,83 @@ startup
 			textSetting.GetType().GetProperty("Text2").SetValue(textSetting, text);
 	});
 
- 	settings.Add("firekeep", false, "Firekeep");
-	settings.Add("Chest_A02_Keep_Key_01", false, "First Old Key", "firekeep");
-	settings.Add("Spirit_A02_RiverSpirit", false, "Double Dash Spirit", "firekeep");
-	settings.Add("Shrine: 7 -> 4", false, "Firekeep Shrine", "firekeep");
-	settings.Add("Area: 1 -> 8", false, "Transition to Arcane", "firekeep");
+	string[,] _settings = 
+	{
+		{ "transitions", "Area: 1 -> 8", "Enter Arcane Tunnels from Firekeep"},
+		{ "transitions", "Area: 8 -> 0", "Enter Stoneheart City from Arcane"},
+		{ "transitions", "Area: 0 -> 4", "Enter Forest Shrine from Stoneheart City"},
+		{ "transitions", "Area: 10 -> 3", "Enter Uthas Temple from Abandoned Path"},
+		{ "transitions", "Area: 11 -> 10", "Enter Abandoned Path from Temple Gardens"},
 
-	settings.Add("arcane", false, "Arcane");
-	settings.Add("Shrine: 4 -> 3", false, "Arcane Shrine", "arcane");
-	settings.Add("Area: 8 -> 0", false, "Elevator Transition", "arcane");
-	settings.Add("IDTutorial_Spin Attack", false, "Spin Attack Ability", "arcane");
-	settings.Add("Area: 0 -> 4", false, "Forest Shrine Transition", "arcane");
+		{ "shrines", "Shrine: 4", "Unlock Firekeep Shrine"},
+		{ "shrines", "Shrine: 3", "Unlock Arcane Tunnels Shrine"},
+		{ "shrines", "Shrine: 0", "Unlock Stoneheart Shrine"},
+		{ "shrines", "Shrine: 1", "Unlock Abandoned Path Shrine"},
+		{ "shrines", "Shrine: 2", "Unlock Temple Gardens Shrine"},
+		{ "shrines", "Shrine: 5", "Unlock Firefall River Shrine"},
+		{ "shrines", "Shrine: 6", "Unlock Steam House Shrine"},
 
-	settings.Add("forest", false, "Forest Shrine");
-	settings.Add("IDTutorial_Wall Run", false, "Wallrun Ability", "forest");
-	settings.Add("BossDoor_Gru_SkipCutscene", false, "Gruh Entry", "forest");
-	settings.Add("BossGuardianGru", false, "Gruh Dead", "forest");
+		{ "bosses", "BossDoor_Gru_SkipCutscene", 	"Gruh Entry"},
+		{ "bosses", "BossGuardianGru", 				"Gruh Dead"},
+		{ "bosses", "BossDoor_Boo_SkipCutscene", 	"Croh Entry"},
+		{ "bosses", "BossGuardianBoo", 				"Croh Dead"},
+		{ "bosses", "BossLordSirion_SkipCutscene",	"Sirion Entry"},
+		{ "bosses", "TeleportTemple14", 			"Sirion Dead"},
+		{ "bosses", "BossLordBeira_SkipCutscene", 	"Beira Entry"},
+		{ "bosses", "TeleportTemple2",				"Beira Dead"},
+		{ "bosses", "BossLordSamael_SkipCutscene",	"Samael Entry"},
+		{ "bosses", "TeleportTemple9",				"Samael Dead"},
+		{ "bosses", "Queen_SkipCutscene",			"Queen Entry"},
+		{ "bosses", "BossQueen", 					"Queen Dead"},
 
-	settings.Add("uthas", false, "Uthas Temple");
-	settings.Add("MeetBremur", false, "Graveyard Key", "uthas");
-	settings.Add("Area: 10 -> 3", false, "Transition to Uthas Temple", "uthas");
-	settings.Add("IDTutorial_Double Jump", false, "Double Jump Ability", "uthas");
-	settings.Add("BossDoor_Boo_SkipCutscene", false, "Croh Entry", "uthas");
-	settings.Add("BossGuardianBoo", false, "Croh Dead", "uthas");
-	
-	settings.Add("temple", false, "Temple Garden");
-	settings.Add("IDTutorial_Warp", false, "Fast Travel Ability", "temple");
-	settings.Add("Area: 11 -> 10", false, "Transition to Abandoned Path", "temple");
-	settings.Add("CS: VonCinematicVessel", false, "AP Soul Fragments Start", "temple");
-	settings.Add("BP_BeiraVesselBase_Graveyard", false, "AP Soul Fragments End", "temple");
-	settings.Add("CS: Door_A02_WaterWays_04_3", false, "TG Soul Fragments Start", "temple");
-	settings.Add("BP_BeiraVesselBase_TempleGardens", false, "TG Soul Fragments End", "temple");
+		{ "eventSplits", "abilities", "Abilities"},
+			{ "abilities", "IDTutorial_Spin Attack", 	"Spin Attack"},
+			{ "abilities", "IDTutorial_Wall Run",		"Wallrun"},
+			{ "abilities", "IDTutorial_Double Jump",	"Double Jump"},
+			{ "abilities", "IDTutorial_Warp",			"Fast Travel"},
 
-	settings.Add("firefall", false, "Firefall River");
-	settings.Add("CS: Door_A02_WaterWays_03_2", false, "FFR Soul Fragments Start", "firefall");
-	settings.Add("BP_BeiraVesselBase_LakeMolva", false, "FFR Soul Fragments End", "firefall");
+		{ "eventSplits", "spirits", "Spirits"},
+			{ "spirits", "Spirit_A02_RiverSpirit",		"Fire Keep Tear"},
+			{ "spirits", "Spirit_A02_ToxicRat",			"Aerial Rat"},
 
-	settings.Add("steamHouse", false, "Steam House");
-	settings.Add("SteamHouseMusicIntro", false, "Steam House Intro", "steamHouse");
-	settings.Add("SteamMachineActivator_1", false, "Fix Boiler 1", "steamHouse");
-	settings.Add("Elevator_ExitArea_SteamHouse-RustCity", false, "Fix Boiler 3", "steamHouse");
-	settings.Add("BossLordSirion_SkipCutscene", false, "Sirion Entry", "steamHouse");
-	settings.Add("TeleportTemple14", false, "Sirion Dead", "steamHouse");
+		{ "eventSplits", "soul", "Soul Fragments"},
+			{ "soul", "CS: VonCinematicVessel", "AP Soul Fragments Start"},
+			{ "soul", "BP_BeiraVesselBase_Graveyard", "AP Soul Fragments End"},
+			{ "soul", "CS: Door_A02_WaterWays_04_3", "TG Soul Fragments Start"},
+			{ "soul", "BP_BeiraVesselBase_TempleGardens", "TG Soul Fragments End"},
+			{ "soul", "CS: Door_A02_WaterWays_03_2", "FFR Soul Fragments Start"},
+			{ "soul", "BP_BeiraVesselBase_LakeMolva", "FFR Soul Fragments End"},
+			{ "soul", "CS: DoorLever3", "Intro Soul Fragments Start"},
+			{ "soul", "BP_BeiraVesselBase_GameIntro", "Intro Soul Fragments End"},
 
-	settings.Add("soul", false, "Soul Fragments");
-	settings.Add("CS: DoorLever3", false, "Intro Soul Fragments Start", "soul");
-	settings.Add("BP_BeiraVesselBase_GameIntro", false, "Intro Soul Fragments End", "soul");
-	settings.Add("BossLordBeira_SkipCutscene", false, "Beira Entry", "soul");
-	settings.Add("TeleportTemple2", false, "Beira Dead", "soul");
+		{ "eventSplits", "firekeep", "Firekeep"},
+			{ "firekeep", "Chest_A02_Keep_Key_01", 		"First Old Key"},
 
-	settings.Add("water", false, "Waterways");
-	settings.Add("BossLordSamael_SkipCutscene", false, "Samael Entry", "water");
-	settings.Add("TeleportTemple9", false, "Samael Dead", "water");
-	
-	settings.Add("queen", false, "Queen");
-	settings.Add("Queen_SkipCutscene", false, "Queen Entry", "queen");
-	settings.Add("BossQueen", false, "Queen Dead", "queen");
+		{ "eventSplits", "stoneheart", "Stoneheart City"},
+			{ "stoneheart", "MeetBremur", "Get Graveyard Key from Bremur"},
 
+		{ "eventSplits", "steamhouse", "Steam House"},
+			{ "steamhouse", "SteamHouseMusicIntro", "Steam House Intro"},
+			{ "steamhouse", "SteamMachineActivator_1", "Fix Boiler 1"},
+			{ "steamhouse", "SteamMachineActivator_2", "Fix Boiler 2"},
+			{ "steamhouse", "Elevator_ExitArea_SteamHouse-RustCity", "Fix Last Boiler"},
+
+	};
+
+	settings.Add("transitions", false, "Area Transition Splits");
+	settings.Add("shrines", false, "Shrine Splits");
+	settings.Add("bosses", false, "Boss Splits");
+	settings.Add("eventSplits", false, "Event Splits");
 	settings.Add("debug", false, "[DEBUG] Show tracked values on overlay");
+
+	for (int i = 0; i < _settings.GetLength(0); ++i)
+	{
+		string parent	= _settings[i, 0];
+		string id 		= _settings[i, 1];
+		string desc 	= _settings[i, 2];
+
+		settings.Add(id, false, desc, parent);
+	}
 
 	vars.splitOnNextCutscene = false; 
 
@@ -89,6 +123,9 @@ startup
 		"Door_A02_WaterWays_03_2",
 		"DoorLever3"
 	};
+
+	vars.splitName = "";
+	vars.hasSplit = new List<string>(){};
 }
 
 init
@@ -164,6 +201,11 @@ start
 	return old.Centiseconds < 1f && current.Centiseconds >= 1f;
 }
 
+onStart
+{
+	vars.hasSplit.Clear();
+}
+
 reset
 {
 	return current.Centiseconds < 0.5f;
@@ -208,7 +250,17 @@ split
 
 	// Split when fireshrine is updated
 	if (vars.Data["LastCheckpoint"].Changed)
-		return settings["Shrine: " + vars.Data["LastCheckpoint"].Old + " -> " + vars.Data["LastCheckpoint"].Current]; 
+	{
+		vars.splitName = "Shrine: " + vars.Data["LastCheckpoint"].Current;
+		if (vars.hasSplit.Contains(vars.splitName))
+			return false;
+		if (settings[vars.splitName])
+		{
+			vars.hasSplit.Add(vars.splitName);
+			return true;
+		}
+	}
+		
 
 	// Split when streaming chunk changes (area transitions)
 	if (vars.Data["StreamingChunk"].Changed)
