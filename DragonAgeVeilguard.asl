@@ -1,3 +1,8 @@
+state("Dragon Age The Veilguard", "1.0.2")
+{
+    bool isLoading : 0x0629AE08;
+    string100 mapPath : 0x05E9AC58, 0x3C2;
+}
 state("Dragon Age The Veilguard", "1.0.1")
 {
     bool isLoading : 0x0629DE88;
@@ -17,6 +22,7 @@ init
     {
         case 0x73A7000: version = "1.0.0"; break;
         case 0x73AF000: version = "1.0.1"; break;
+        case 0x73AC000: version = "1.0.2"; break;
         default:        vars.WriteLog("Unknown version."); break;
     }
 
