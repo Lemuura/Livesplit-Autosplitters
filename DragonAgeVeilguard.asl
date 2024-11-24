@@ -1,14 +1,19 @@
-state("Dragon Age The Veilguard", "1.0.2")
+state("Dragon Age The Veilguard", "Patch 3")
+{
+    bool isLoading : 0x0629EFF8;
+    string100 mapPath : 0x05E9EC58, 0x3C2;
+}
+state("Dragon Age The Veilguard", "Patch 2")
 {
     bool isLoading : 0x0629AE08;
     string100 mapPath : 0x05E9AC58, 0x3C2;
 }
-state("Dragon Age The Veilguard", "1.0.1")
+state("Dragon Age The Veilguard", "Patch 1")
 {
     bool isLoading : 0x0629DE88;
     string100 mapPath : 0x05E9DC58, 0x3C2;
 }
-state("Dragon Age The Veilguard", "1.0.0")
+state("Dragon Age The Veilguard", "Launch Patch")
 {
     bool isLoading : 0x06295B08;
     string100 mapPath : 0x05E95BD8, 0x3C2;
@@ -20,9 +25,10 @@ init
     vars.WriteLog("Module memory size: " + mms.ToString("X"));
     switch (mms)
     {
-        case 0x73A7000: version = "1.0.0"; break;
-        case 0x73AF000: version = "1.0.1"; break;
-        case 0x73AC000: version = "1.0.2"; break;
+        case 0x73A7000: version = "Launch Patch"; break;
+        case 0x73AF000: version = "Patch 1"; break;
+        case 0x73AC000: version = "Patch 2"; break;
+        case 0x73B0000: version = "Patch 3"; break;
         default:        vars.WriteLog("Unknown version."); break;
     }
 
