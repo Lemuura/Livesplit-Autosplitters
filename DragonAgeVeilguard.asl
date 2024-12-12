@@ -1,3 +1,8 @@
+state("Dragon Age The Veilguard", "Patch 4")
+{
+    bool isLoading : 0x062A01F8;
+    string100 mapPath : 0x05E9FC58, 0x3C2;
+}
 state("Dragon Age The Veilguard", "Patch 3")
 {
     bool isLoading : 0x0629EFF8;
@@ -29,6 +34,7 @@ init
         case 0x73AF000: version = "Patch 1"; break;
         case 0x73AC000: version = "Patch 2"; break;
         case 0x73B0000: version = "Patch 3"; break;
+        case 0x73B1000: version = "Patch 4"; break;
         default:        vars.WriteLog("Unknown version."); break;
     }
 
