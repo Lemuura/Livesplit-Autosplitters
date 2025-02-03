@@ -38,11 +38,12 @@ startup
 
 	string[,] _settings = 
 	{
-		{ "transitions", "Area: 1 -> 8", "Enter Arcane Tunnels from Firekeep"},
-		{ "transitions", "Area: 8 -> 0", "Enter Stoneheart City from Arcane"},
-		{ "transitions", "Area: 0 -> 4", "Enter Forest Shrine from Stoneheart City"},
+		{ "transitions", "Cinematic_Area_Intro_Arcane_CutsceneReveal", "Enter Arcane Tunnels from Firekeep"},
+		{ "transitions", "StoneheartIntroMusic", "Enter Stoneheart City proper"},
+		{ "transitions", "NuosTempleIntroCutsceneMusic", "Enter Forest Shrine from Stoneheart City"},
 		{ "transitions", "Area: 10 -> 3", "Enter Uthas Temple from Abandoned Path"},
-		{ "transitions", "Area: 11 -> 10", "Enter Abandoned Path from Temple Gardens"},
+		{ "transitions", "GraveyardMusicIntro", "Enter Abandoned Path from stoneheart city"},
+		{ "transitions", "Area: 12 -> 13", "Enter godess chamber"},
 
 		{ "shrines", "Shrine: 4", "Unlock Firekeep Shrine"},
 		{ "shrines", "Shrine: 3", "Unlock Arcane Tunnels Shrine"},
@@ -52,10 +53,10 @@ startup
 		{ "shrines", "Shrine: 5", "Unlock Firefall River Shrine"},
 		{ "shrines", "Shrine: 6", "Unlock Steam House Shrine"},
 
-		{ "bosses", "BossDoor_Gru_SkipCutscene", 	"Gruh Entry"},
-		{ "bosses", "BossGuardianGru", 				"Gruh Dead"},
-		{ "bosses", "BossDoor_Boo_SkipCutscene", 	"Croh Entry"},
-		{ "bosses", "BossGuardianBoo", 				"Croh Dead"},
+		{ "bosses", "BossDoor_Gru", 	"Gruh Entry"},
+		{ "bosses", "NuosTempleEndCutscene", 				"Gruh Dead"},
+		{ "bosses", "BossDoor_Boo", 	"Croh Entry"},
+		{ "bosses", "UthasEndCutscene", 				"Croh Dead"},
 		{ "bosses", "BossLordSirion_SkipCutscene",	"Sirion Entry"},
 		{ "bosses", "TeleportTemple14", 			"Sirion Dead"},
 		{ "bosses", "BossLordBeira_SkipCutscene", 	"Beira Entry"},
@@ -76,14 +77,12 @@ startup
 			{ "spirits", "Spirit_A02_ToxicRat",			"Aerial Rat"},
 
 		{ "eventSplits", "soul", "Soul Fragments"},
-			{ "soul", "CS: VonCinematicVessel", "AP Soul Fragments Start"},
-			{ "soul", "BP_BeiraVesselBase_Graveyard", "AP Soul Fragments End"},
-			{ "soul", "CS: Door_A02_WaterWays_04_3", "TG Soul Fragments Start"},
+			{ "soul", "VonGiveVesselCutscene", "obtain vesssel souls"},
+			{ "soul", "BP_BeiraVesselBase_Graveyard", "AP Soul Fragments End"},		
 			{ "soul", "BP_BeiraVesselBase_TempleGardens", "TG Soul Fragments End"},
-			{ "soul", "CS: Door_A02_WaterWays_03_2", "FFR Soul Fragments Start"},
 			{ "soul", "BP_BeiraVesselBase_LakeMolva", "FFR Soul Fragments End"},
-			{ "soul", "CS: DoorLever3", "Intro Soul Fragments Start"},
-			{ "soul", "BP_BeiraVesselBase_GameIntro", "Intro Soul Fragments End"},
+			{ "soul", "CS: DoorLever3", "FireKeep Soul Fragments Start"},
+			{ "soul", "BP_BeiraVesselBase_GameIntro", "FireKeep Soul Fragments End"},
 
 		{ "eventSplits", "firekeep", "Firekeep"},
 			{ "firekeep", "Chest_A02_Keep_Key_01", 		"First Old Key"},
@@ -93,9 +92,10 @@ startup
 
 		{ "eventSplits", "steamhouse", "Steam House"},
 			{ "steamhouse", "SteamHouseMusicIntro", "Steam House Intro"},
-			{ "steamhouse", "SteamMachineActivator_1", "Fix Boiler 1"},
+			{ "steamhouse", "MiaGiveSwords", "obtain iron justice"},
 			{ "steamhouse", "SteamMachineActivator_2", "Fix Boiler 2"},
 			{ "steamhouse", "Elevator_ExitArea_SteamHouse-RustCity", "Fix Last Boiler"},
+			{ "steamhouse", "NPC_Master_BarriStage2_NPCBoundActor", "obtain kinas"},
 
 	};
 
@@ -126,6 +126,8 @@ startup
 
 	vars.splitName = "";
 	vars.hasSplit = new List<string>(){};
+	vars.shrineBeen = new List<string>(){};
+	vars.shrineBeen.Add("a");
 }
 
 init
@@ -227,7 +229,7 @@ split
 	if (vars.Data["WorldPath"].Current == "Menu/MainMenu")
 		return false;
 	
- 	if (vars.splitOnNextCutscene && vars.Data["Cutscene"].Changed && vars.Data["Cutscene"].Current)
+ 	if (vars.splitOnNextCutscene && vars.Data["Cutscene"].Current)
 	{
 		vars.splitOnNextCutscene = false;
 		return settings["CS: " + current.Event];
@@ -252,12 +254,18 @@ split
 	if (vars.Data["LastCheckpoint"].Changed)
 	{
 		vars.splitName = "Shrine: " + vars.Data["LastCheckpoint"].Current;
-		if (vars.hasSplit.Contains(vars.splitName))
+		if (vars.shrineBeen.Contains(vars.Data["LastCheckpoint"].Current.ToString()))
 			return false;
-		if (settings[vars.splitName])
+		else
 		{
-			vars.hasSplit.Add(vars.splitName);
-			return true;
+			if (vars.hasSplit.Contains(vars.splitName))
+				return false;
+			if (settings[vars.splitName])
+			{
+				vars.shrineBeen.Add(vars.Data["LastCheckpoint"].Current.ToString());
+				vars.hasSplit.Add(vars.splitName);
+				return true;
+			}
 		}
 	}
 		
