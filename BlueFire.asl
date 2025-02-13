@@ -39,7 +39,7 @@ startup
 	string[,] _settings = 
 	{
 		{ "transitions", "Cinematic_Area_Intro_Arcane_CutsceneReveal", "Enter Arcane Tunnels from Firekeep"},
-		{ "transitions", "0 Pos: 49000 0 -2500", "Enter elevator from Tunnels"},
+		{ "transitions", "8 Pos: 48300 650 -29600", "Enter elevator from Tunnels"},
 		{ "transitions", "StoneheartIntroMusic", "Enter Stoneheart City proper"},
 		//{ "transitions", "NuosTempleIntroCutsceneMusic", "Enter Forest Shrine from Stoneheart City"},
 		{ "transitions", "Area: 0 -> 4", "Enter Forest Shrine from Stoneheart City"},
@@ -106,8 +106,8 @@ startup
 			{ "firekeep", "1 Pos: 70000 -99000 -38000", "First fight starts"},
 			{ "firekeep", "Chest_A02_Keep_Key_01", 		"First Old Key"},
 			{ "firekeep", "FirstVoidCompleted", 		"First Void Completed"},
-			{ "firekeep", "1 Pos: 66800 -40700 -35000", "BoxRoom entry"},
-			{ "firekeep", "Cinematic_Area_Intro9_CutsceneReveal", "BoxRoom entry2"},
+			//{ "firekeep", "1 Pos: 66800 -40700 -35000", "BoxRoom entry"},
+			{ "firekeep", "Cinematic_Area_Intro9_CutsceneReveal", "BoxRoom entry"},
 
 		{ "eventSplits", "stoneheart", "Stoneheart City"},
 			{ "stoneheart", "MeetBremur", "Get Graveyard Key from Bremur"},
@@ -190,6 +190,13 @@ startup
 				new Vector3f(-45400, -54300, -45000)
 			} 
         },
+		{
+            8, // tunnels
+            new Vector3f[]
+			{
+				new Vector3f(48300, 650, -29600), // tunnels end elevator
+			}
+		},
 	};
 
 	Func<int, Vector3f, Tuple<bool, string>> CheckPositionSplits = (targetChunk, currentPosition) =>
@@ -316,7 +323,7 @@ reset
 
 gameTime
 {
-	if (current.Centiseconds == 2) //make sure the timer starts on 0.00
+	if (current.Centiseconds < 10) //make sure the timer starts on 0.00
 		return TimeSpan.FromSeconds(0f);
 	if (current.Centiseconds > 0)
 		return TimeSpan.FromSeconds(current.Centiseconds / 100f);
